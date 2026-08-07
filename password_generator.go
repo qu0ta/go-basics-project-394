@@ -5,8 +5,10 @@ const (
 	digits    = "0123456789"
 	special = "!@#$%^&*"
 )
-
-func GeneratePassword(length int, useUppercase, useDigits, useSpecial bool) string {
+func NextRandom(number int) int {
+    return (16807 * number) % 2147483647
+}
+func GeneratePassword(length, seed int, useUppercase, useDigits, useSpecial bool) string {
 	var alphabet = lowercase
 	if useUppercase {
 		alphabet += uppercase
@@ -17,11 +19,14 @@ func GeneratePassword(length int, useUppercase, useDigits, useSpecial bool) stri
 	if useSpecial {
 		alphabet += special
 	}
+	curr := seed
 	len := len(alphabet)
 	var result string
-	for i := 0; i < length; i++ {
-		ind := i % len
+	for range len {
+
+		ind := curr % len
 		result += string(alphabet[ind])
+		curr = NextRandom(curr)
 	}
 	return result
 }
