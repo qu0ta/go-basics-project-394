@@ -1,15 +1,21 @@
 package main
+const (
+	lowercase = "abcdefghijklmnopqrstuvwxyz"
+	uppercase = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+	digits    = "0123456789"
+	special = "!@#$%^&*"
+)
 
-const lowercase = "abcdefghijklmnopqrstuvwxyz"
-const uppercase = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-const digits    = "0123456789"
-func GeneratePassword(length int, useUppercase, useDigits bool) string {
+func GeneratePassword(length int, useUppercase, useDigits, useSpecial bool) string {
 	var alphabet = lowercase
 	if useUppercase {
 		alphabet += uppercase
 	}
 	if useDigits {
 		alphabet += digits
+	}
+	if useSpecial {
+		alphabet += special
 	}
 	len := len(alphabet)
 	var result string
