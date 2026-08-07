@@ -29,7 +29,7 @@ func GeneratePassword(length, seed int, useUppercase, useDigits, useSpecial bool
         alphabet += special
     }
     
-    curr := seed
+    curr := NextRandom(seed)
     alphabetLen := len(alphabet)
     var result string
     
