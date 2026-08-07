@@ -5,6 +5,7 @@ import (
 )
 
 func main() {
-	fmt.Println(GeneratePassword(5))
-	fmt.Println(GeneratePassword(30))
+	fmt.Println(GeneratePassword(30, true, true))
+
+	fmt.Println(GeneratePassword(30, false, false))
 }
