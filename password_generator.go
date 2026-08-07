@@ -9,6 +9,9 @@ func NextRandom(number int) int {
     return (16807 * number) % 2147483647
 }
 func GeneratePassword(length, seed int, useUppercase, useDigits, useSpecial bool) string {
+	if length <= 0 {
+		return ""
+	}
 	var alphabet = lowercase
 	if useUppercase {
 		alphabet += uppercase
