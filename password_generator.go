@@ -1,112 +1,99 @@
 package main
 
-import "fmt"
-
-const (
-    lowercase = "abcdefghijklmnopqrstuvwxyz"
-    uppercase = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-    digits    = "0123456789"
-    special   = "!@#$%^&*"
+import (
+	"fmt"
+	"strings"
 )
 
+const (
+	lowercase = "abcdefghijklmnopqrstuvwxyz"
+	uppercase = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+	digits    = "0123456789"
+	special   = "!@#$%^&*"
+)
+
+var verdicts = map[int]string{
+	0: "Слабый",
+	1: "Слабый",
+	2: "Слабый",
+	3: "Средний",
+	4: "Надёжный",
+	5: "Очень надёжный",
+}
+
+// NextRandom возвращает следующее псевдослучайное число.
 func NextRandom(number int) int {
-    return (16807 * number) % 2147483647
+	return (16807 * number) % 2147483647
 }
 
+// GeneratePassword генерирует пароль заданной длины на основе seed.
 func GeneratePassword(length, seed int, useUppercase, useDigits, useSpecial bool) string {
-    if length <= 0 {
-        return ""
-    }
-    
-    var alphabet = lowercase
-    if useUppercase {
-        alphabet += uppercase
-    }
-    if useDigits {
-        alphabet += digits
-    }
-    if useSpecial {
-        alphabet += special
-    }
-    
-    curr := NextRandom(seed)
-    alphabetLen := len(alphabet)
-    var result string
-    
-    for i := 0; i < length; i++ {
-        ind := curr % alphabetLen
-        result += string(alphabet[ind])
-        curr = NextRandom(curr)
-    }
-    return result
+	alphabet := lowercase
+
+	if useUppercase {
+		alphabet += uppercase
+	}
+	if useDigits {
+		alphabet += digits
+	}
+	if useSpecial {
+		alphabet += special
+	}
+
+	current := NextRandom(seed)
+	alphabetLength := len(alphabet)
+
+	var password strings.Builder
+	password.Grow(length)
+
+	for i := 0; i < length; i++ {
+		index := current % alphabetLength
+		password.WriteByte(alphabet[index])
+		current = NextRandom(current)
+	}
+
+	return password.String()
 }
 
-
+// CheckPassword возвращает оценку надёжности пароля.
 func CheckPassword(password string) string {
-	var score int
+	score := strengthScore(password)
+
+	return fmt.Sprintf(
+		"%s пароль (оценка %d из 5)",
+		verdicts[score],
+		score,
+	)
+}
+
+func strengthScore(password string) int {
+	score := 0
+
 	if len(password) >= 8 {
 		score++
 	}
-	for _, l := range lowercase {
-		isLowercased := false
-		for _, p := range password {
-			if l == p {
-				score++
-				isLowercased = true
-				break
-			}
-		}
-		if isLowercased {
-			break
-		}
+	if has(password, lowercase) {
+		score++
 	}
-	for _, l := range uppercase {
-		isUppercased := false
-		for _, p := range password {
-			if l == p {
-				score++
-				isUppercased = true
-				break
-			}
-		}
-		if isUppercased {
-			break
-		}
+	if has(password, uppercase) {
+		score++
 	}
-	for _, l := range digits {
-		isdigitted := false
-		for _, p := range password {
-			if l == p {
-				score++
-				isdigitted = true
-				break
-			}
-		}
-		if isdigitted {
-			break
-		}
+	if has(password, digits) {
+		score++
 	}
-	for _, l := range special {
-		isSpecialized := false
-		for _, p := range password {
-			if l == p {
-				score++
-				isSpecialized = true
-				break
-			}
-		}
-		if isSpecialized {
-			break
-		}
+	if has(password, special) {
+		score++
 	}
-	m := make(map[int]string)
-	m[0] = "Слабый"
-	m[1] = "Слабый"
-	m[2] = "Слабый"
-	m[3] = "Средний"
-	m[4] = "Надёжный"
-	m[5] = "Очень надёжный"
 
-	return fmt.Sprintf("%s пароль (оценка %d из 5)", m[score], score)
+	return score
+}
 
+func has(password, chars string) bool {
+	for _, char := range password {
+		if strings.ContainsRune(chars, char) {
+			return true
+		}
+	}
+
+	return false
 }
